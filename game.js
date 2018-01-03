@@ -1,5 +1,9 @@
 module.exports = boardFactory;
 
+/**
+*  create game board
+**/
+
 function boardFactory(){
 	var board = new Board();
 	board.findPositions();
@@ -7,14 +11,15 @@ function boardFactory(){
 	return board;	
 }
 
-
-
-/*
-*  create game board
-*/
-
-
-
+/**
+*
+*  Board
+*  @function getConfig
+*  @function findPostions
+*  @function generateBoard
+*  @function getRowStrings
+*
+**/
 
 function Board(){
 	this.board = null;
@@ -96,7 +101,7 @@ Board.prototype.generateBoard = function(){
 	this.board = plan;
 }
 
-Board.prototype.getRowStrings = function(board){
+Board.prototype.getRowStrings = function(){
 	return this.board.map((row)=>{
 		
 		return row.map((ele, i)=> ((ele != 0)?((ele == 1)?" ":"*"):"|"));

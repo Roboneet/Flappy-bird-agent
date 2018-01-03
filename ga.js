@@ -10,6 +10,25 @@ module.exports = Population
 *
 **/
 
+
+
+/**
+*
+*  Population
+*  @function log
+*  @function start
+*  @function run
+*  @function fill
+*  @function sort
+*  @function mate
+*  @function evaluate
+*  @function generation
+*  @function mateTop
+*  @function mutate
+*  @function kill
+*
+**/
+
 function Population({
 	size=100,
 	mutationChance=0.5,
@@ -146,6 +165,18 @@ Population.prototype.kill = function(){
 	this.players = this.players.slice(0, n);
 }
 
+/**
+*
+*  Player
+*  @function getScore
+*  @function random
+*  @function reset
+*  @function fitness
+*  @function mate
+*  @function mutate
+*
+**/
+
 function Player(moves=[]){
 	// console.log('new player', moves.length);
 	this.moves = moves;
@@ -257,6 +288,18 @@ Player.prototype.mutate = function(chance){
 }
 
 
+/**
+*
+*  Block
+*  @function mark
+*  @function next
+*  @function getTrace
+*  @function move
+*  @function look
+*  @function getCol
+*  @function getIntersection
+*
+**/
 
 function Block(gameConfig){
 	this.height = 3;  // should be less than 5
@@ -307,11 +350,8 @@ Block.prototype.checkIntersection = function(r, c){
 	return Math.abs(this.row - r)<2 && this.col == c
 }
 
-function cloneObj(obj){
-	return JSON.parse(JSON.stringify(obj));
-}
 
+/*= function to deep a clone an array by 1 level */
 function cloneGrid(grid){
 	return grid.map(row=> row.slice());
 }
-
