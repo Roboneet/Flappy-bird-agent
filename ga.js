@@ -156,6 +156,7 @@ function Player(moves=[]){
 	this.step = 2;
 	this.output = [];
 	this.steps = [];
+	this.stars = 0;
 }
 
 Player.prototype.getScore = function(){
@@ -177,6 +178,7 @@ Player.prototype.reset = function(){
 	this.boundaryHit = 0;
 	this.score = 0;
 	this.steps = [];
+	this.stars = 0;
 }
 
 Player.prototype.fitness = function(gameConfig){
@@ -188,8 +190,9 @@ Player.prototype.fitness = function(gameConfig){
 	// console.log(this.moves);
 	
 	this.moves.forEach((move, index)=>{
+		var barNo = gameConfig.parts.indexOf(index + 1);
 		if(!block.next(move)){
-			var barNo = gameConfig.parts.indexOf(index + 1);
+			
 			if(barNo != -1){
 				this.barHit++;
 				this.steps.push(false);
@@ -204,17 +207,20 @@ Player.prototype.fitness = function(gameConfig){
 			}
 			block.mark('+');
 		}else{
-			if(gameConfig.parts.indexOf(index + 1) != -1){
+			if(barNo != -1){
 				this.steps.push(!floor);
+				if(block.checkIntersection(gameConfig.starPositions[barNo], index + 1)){
+					this.stars++;
+				}
 			}
 		}
 	})
 	// console.log(this.steps);
 	this.output = block.getTrace();
-	this.keys = this.moves.filter(move => move == 0).length;
+	this.keys = this.moves.length - this.moves.filter(move => move == 0).length;
 	this.score = (-1)*(this.barHit + this.boundaryHit);
 	if(this.score == 0){
-		this.score += (3*this.moves.filter(move => move == 0).length - this.moves.length);
+		this.score += 20*this.stars - this.keys;
 	}
 }
 
@@ -262,11 +268,11 @@ function Block(gameConfig){
 	this.trace = cloneGrid(gameConfig.trace);
 }
 
-Block.prototype.mark = function(char="O"){
+Block.prototype.mark = function(char){
 	// console.log('mark ...', this.row, this.col);
-	this.trace[this.row][this.col] = char;
-	this.trace[this.row - 1][this.col] = char;
-	this.trace[this.row + 1][this.col] = char;
+	this.trace[this.row][this.col] = char || "-";
+	this.trace[this.row - 1][this.col] = char || "-";
+	this.trace[this.row + 1][this.col] = char || "-";
 }
 
 Block.prototype.next = function(move){
@@ -296,6 +302,10 @@ Block.prototype.look = function(r, c){
 
 Block.prototype.getCol = function(){ return this.col };
 
+
+Block.prototype.checkIntersection = function(r, c){
+	return Math.abs(this.row - r)<2 && this.col == c
+}
 
 function cloneObj(obj){
 	return JSON.parse(JSON.stringify(obj));

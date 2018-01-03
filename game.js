@@ -22,6 +22,7 @@ function Board(){
 	this.horizontal = null;
 	this.rows = 40;
 	this.cols = 140;
+	this.starPositions = [];
 }
 
 Board.prototype.getConfig = function(){
@@ -32,13 +33,15 @@ Board.prototype.getConfig = function(){
 		"trace": this.getRowStrings(),
 		"rows": this.rows,
 		"cols": this.cols,
-		"parts": this.parts
+		"parts": this.parts,
+		"starPositions": this.starPositions,
 	}
 }
 
 Board.prototype.findPositions = function(){
 	var horizontal = new Array(this.cols);
 	var parts = [];
+	var starPositions = [];
 	horizontal.fill(false);
 	for(var i = 0; i < this.cols; i+= 20){
 		
@@ -51,13 +54,15 @@ Board.prototype.findPositions = function(){
 		var height = Math.floor(Math.random()*6) + 5;
 		var offset = Math.floor((this.rows - height + 1)* Math.random());
 		vertical.push([height, offset]);
+		starPositions.push(offset + Math.floor(Math.random()* height));
 	})
 
 	
 	Object.assign(this,{
 		horizontal,
 		vertical,
-		parts
+		parts, 
+		starPositions
 	});
 }
 
@@ -70,15 +75,19 @@ Board.prototype.generateBoard = function(){
 			if(ele){
 				
 				var [height, offset] = this.vertical[barNo];
-				barNo++;
+				
 
 				if(offset<=i && i< offset + height){
-					row.push(true);
+					if(this.starPositions[barNo] == i)
+						row.push(2);
+					else 
+						row.push(1);
 				}else{
-					row.push(false);
+					row.push(0);
 				}
+				barNo++;
 			}else{
-				row.push(true);
+				row.push(1);
 			}
 		});
 		plan.push(row);
@@ -90,6 +99,6 @@ Board.prototype.generateBoard = function(){
 Board.prototype.getRowStrings = function(board){
 	return this.board.map((row)=>{
 		
-		return row.map((ele, i)=> ((ele)?" ":"|"));
+		return row.map((ele, i)=> ((ele != 0)?((ele == 1)?" ":"*"):"|"));
 	});
 }
