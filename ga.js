@@ -218,9 +218,9 @@ Player.prototype.fitness = function(gameConfig){
 	// console.log(this.steps);
 	this.output = block.getTrace();
 	this.keys = this.moves.length - this.moves.filter(move => move == 0).length;
-	this.score = (-1)*(this.barHit + this.boundaryHit);
+	this.score = (-10)*(this.barHit + this.boundaryHit);
 	if(this.score == 0){
-		this.score += 20*this.stars - this.keys;
+		this.score += 10*this.stars + this.moves.length - this.keys;
 	}
 }
 
@@ -263,7 +263,7 @@ function Block(gameConfig){
 	this.width = 1;
 	this.row = Math.floor(gameConfig.rows/2) || 0; // ( middle of the block is at the middle row )
 	this.col = 0;
-	this.step = 2;
+	this.step = 1;
 	this.board = gameConfig.board;
 	this.trace = cloneGrid(gameConfig.trace);
 }

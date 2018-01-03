@@ -20,8 +20,8 @@ function Board(){
 	this.board = null;
 	this.vertical = null;
 	this.horizontal = null;
-	this.rows = 40;
-	this.cols = 140;
+	this.rows = 25;
+	this.cols = 120;
 	this.starPositions = [];
 }
 
@@ -45,7 +45,7 @@ Board.prototype.findPositions = function(){
 	horizontal.fill(false);
 	for(var i = 0; i < this.cols; i+= 20){
 		
-		var pos = 10 + Math.floor(Math.random()*(10));
+		var pos = 17 + Math.floor(Math.random()*(3));
 		horizontal[i + pos ] = true;
 		parts.push(i + pos);
 	}
