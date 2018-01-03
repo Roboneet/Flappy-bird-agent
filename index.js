@@ -20,10 +20,9 @@ var boardFactory = require('./game.js');
 function display(noImprovement){
 	var best = this.players[0];
 	var last = this.players[this.players.length - 1];
-	if(this.generationNo % 50 == 0)
-		console.log("(Score, no of bars hit, no of stars, no of keyStrokes) => best:: (", best.score, ",", best.barHit,',' ,best.stars, ',',best.keys ,' )  No_Improvement:', noImprovement);
 	if(noImprovement == this.threashold || this.generationNo % 50 == 0){
-		console.log('generation No', this.generationNo, best.score, noImprovement)
+			console.log("#Generation: ",this.generationNo," (Score, no of bars hit, no of stars, no of keyStrokes) => best:: (", best.score, ",", best.barHit,',' ,best.stars, ',',best.keys ,' )  No_Improvement:', noImprovement);
+		// console.log('generation No', this.generationNo, best.score, noImprovement)
 		var output = best.output.
 			map(row=> row.filter((col, i)=> i < 140)).
 			map(row => row.join('')).join('\n');
