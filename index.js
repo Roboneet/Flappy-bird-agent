@@ -1,4 +1,4 @@
-var Population = require('./ga.js');
+var Population = require('./genetic_algo/ga.js');
 var boardFactory = require('./game.js');
 
 (function __init__(){
