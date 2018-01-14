@@ -60,30 +60,33 @@ Population.prototype.start = function(){
 }
 
 
-Population.prototype.run = function({noImprovement=0,lastScore=false} = {}){
+Population.prototype.run = function({noImprovement=0,lastScore=false, bestPlayer} = {}){
 	this.log('run...')	
 	lastScore = lastScore || this.players[0].score;
 	if(noImprovement<this.threashold){
 		
-		this.generation(noImprovement);
+		var best = this.generation(noImprovement);
 		// console.log(lastScore, this.players[0].score)
-		if(lastScore >= this.players[0].score){
+		if(lastScore >= best.score){
 			noImprovement++
 		}else{
 			noImprovement = 0;
+			bestPlayer = best;
+			lastScore = best.score;
 		}	
 
 		var __self__ = this;
 		setTimeout(function(){
 			__self__.run({
 				noImprovement,
-				"lastScore":__self__.players[0].score
+				"lastScore":lastScore,
+				"bestPlayer": bestPlayer
 			});
 		}, 1);
 		return false;
 	}else{
 		if(lastScore && lastScore > 0){ // okay ! constant +ve score
-			this.display(noImprovement);
+			this.display(noImprovement, bestPlayer);
 		}else{  // NOt done yet
 			var __self__ = this;
 			setTimeout(function(){
@@ -122,7 +125,9 @@ Population.prototype.mate = function(a, b){
 	do{
 		opponent = this.players[Math.floor(Math.random()*this.players.length)];
 	}while(opponent == player);
-	this.players = this.players.concat(player.mate(opponent, this.gameConfig));	
+	player.mate(opponent, this.gameConfig).forEach((el, i)=>{
+		this.players = this.players.concat(el);	
+	});
 }
 
 Population.prototype.evaluate = function(){
@@ -138,11 +143,13 @@ Population.prototype.generation = function(noImprovement){
 	if((this.generationNo % 10) == 0){
 		this.display(noImprovement);
 	}
+	var best = JSON.parse(JSON.stringify(this.players[0]));
 	this.kill();
 	this.mateTop();
 	this.fill();
 	this.mutate();
 	this.generationNo++;
+	return best
 }
 
 Population.prototype.mateTop = function(){
@@ -210,6 +217,7 @@ Player.prototype.reset = function(){
 	this.score = 0;
 	this.steps = [];
 	this.stars = 0;
+	this.keys = 0;
 }
 
 Player.prototype.fitness = function(gameConfig){
@@ -220,60 +228,81 @@ Player.prototype.fitness = function(gameConfig){
 	block.mark();
 	// console.log(this.moves);
 	
-	this.moves.forEach((move, index)=>{
-		var barNo = gameConfig.parts.indexOf(index + 1);
-		if(!block.next(move)){
+	// this.moves.forEach((move, index)=>{
+	// 	var barNo = gameConfig.parts.indexOf(index + 1);
+	// 	if(!block.next(move)){
 			
-			if(barNo != -1){
-				this.barHit++;
-				this.steps.push(false);
-				floor = false;
-				var [ height , offset ] = gameConfig.vertical[barNo];
-				block.move(offset + Math.floor(height/2), index + 1);
+	// 		if(barNo != -1){
+	// 			this.barHit++;
+	// 			this.steps.push(false);
+	// 			floor = false;
+	// 			var [ height , offset ] = gameConfig.vertical[barNo];
+	// 			block.move(offset + Math.floor(height/2), index + 1);
 					
-			}else{
-				this.boundaryHit++;
-				floor = true;
-				block.move(Math.floor(gameConfig.rows/2), index + 1);
+	// 		}else{
+	// 			this.boundaryHit++;
+	// 			floor = true;
+	// 			block.move(Math.floor(gameConfig.rows/2), index + 1);
+	// 		}
+	// 		block.mark('+');
+	// 	}else{
+	// 		if(barNo != -1){
+	// 			this.steps.push(!floor);
+	// 			if(block.checkIntersection(gameConfig.starPositions[barNo], index + 1)){
+	// 				this.stars++;
+	// 			}
+	// 		}
+	// 	}
+	// })
+	// // console.log(this.steps);
+	// this.output = block.getTrace();
+	// this.keys = this.moves.length - this.moves.filter(move => move == 0).length;
+	// this.score = (-10)*(this.barHit + this.boundaryHit);
+	// if(this.score == 0){
+	// 	this.score += 10*this.stars + this.moves.length - this.keys;
+	// }
+	// console.log(this.moves)
+	this.moves.forEach((move, index)=>{
+		if(block.next(move)){
+			this.keys++;
+			var barNo = gameConfig.parts.indexOf(index + 1);
+			if(block.checkIntersection(gameConfig.starPositions[barNo], index + 1)){
+				this.stars++;
 			}
-			block.mark('+');
 		}else{
-			if(barNo != -1){
-				this.steps.push(!floor);
-				if(block.checkIntersection(gameConfig.starPositions[barNo], index + 1)){
-					this.stars++;
-				}
-			}
+			block.mark('+');
 		}
 	})
-	// console.log(this.steps);
 	this.output = block.getTrace();
-	this.keys = this.moves.length - this.moves.filter(move => move == 0).length;
-	this.score = (-10)*(this.barHit + this.boundaryHit);
-	if(this.score == 0){
-		this.score += 10*this.stars + this.moves.length - this.keys;
-	}
+	this.score = this.keys + 10*this.stars;
 }
 
 Player.prototype.mate = function(other, gameConfig){
 	
-	var newMoves = [];
-	var chance =  Math.random()<0.5
-	for(var i = 0; i< this.steps.length; i++){
-		var barIndex = gameConfig.parts[i];
-		var prev = 0;
-		if(i>0){
-			prev = gameConfig.parts[i-1];
-		}
-		if(this.steps[i] && chance){	
-			newMoves = newMoves.concat(this.moves.slice(prev, barIndex))
-		}else{
-			newMoves = newMoves.concat(other.moves.slice(prev, barIndex))
-		}
-	}
-	newMoves = newMoves.concat(this.moves.slice(newMoves.length));	
+	// var newMoves = [];
+	// var chance =  Math.random()<0.5
+	// for(var i = 0; i< this.steps.length; i++){
+	// 	var barIndex = gameConfig.parts[i];
+	// 	var prev = 0;
+	// 	if(i>0){
+	// 		prev = gameConfig.parts[i-1];
+	// 	}
+	// 	if(this.steps[i] && chance){	
+	// 		newMoves = newMoves.concat(this.moves.slice(prev, barIndex))
+	// 	}else{
+	// 		newMoves = newMoves.concat(other.moves.slice(prev, barIndex))
+	// 	}
+	// }
+	// newMoves = newMoves.concat(this.moves.slice(newMoves.length));	
 
-	return (new Player(newMoves));
+	// return (new Player(newMoves));
+
+	var partition = Math.ceil(Math.random()*this.moves.length);
+	var a = this.moves.slice(0, partition).concat(other.moves.slice(partition, this.moves.length));
+	var b = other.moves.slice(0, partition).concat(this.moves.slice(partition, this.moves.length));
+
+	return [new Player(a), new Player(b)];
+
 }
 
 Player.prototype.mutate = function(chance){
