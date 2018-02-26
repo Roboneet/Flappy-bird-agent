@@ -149,8 +149,9 @@ Population.prototype.mateTop = function(){
 }
 
 Population.prototype.mutate = function(){
+	var __self__ = this;
 	this.players.forEach(function(player){
-			player.mutate(this.mutationChance);
+			player.mutate(__self__.mutationChance);
 	})
 }
 

@@ -1,5 +1,5 @@
 var Population = require('./genetic_algo/ga.js');
-var boardFactory = require('./game.js');
+var boardFactory = require('./game/board.js');
 
 (function __init__(){
 	var board = boardFactory();
@@ -10,7 +10,7 @@ var boardFactory = require('./game.js');
 		debug:false,
 		elitism: 0.1,
 		threashold: 10000,
-		mutationChance: .05,
+		mutationChance: .9,
 		display
 	});
 

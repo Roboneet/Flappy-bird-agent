@@ -10,6 +10,7 @@ module.exports = Block
 *  @function move
 *  @function look
 *  @function getCol
+*  @function getRow
 *  @function getIntersection
 *
 **/
@@ -57,6 +58,7 @@ Block.prototype.look = function(r, c){
 }
 
 Block.prototype.getCol = function(){ return this.col };
+Block.prototype.getRow = function(){ return this.row };
 
 
 Block.prototype.checkIntersection = function(r, c){

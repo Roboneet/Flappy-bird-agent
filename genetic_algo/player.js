@@ -1,6 +1,6 @@
 module.exports = Player
 
-var Block = require('./block');
+var Block = require('../game/block');
 /**
 *
 *  Player
@@ -137,12 +137,14 @@ Player.prototype.mate = function(other, gameConfig){
 }
 
 Player.prototype.mutate = function(chance){
-	if(Math.random() > chance)return;
-	// console.log('mutate')
-	var index = Math.floor(this.moves.length*Math.random());
-	// console.log(index)
-	var dir = Math.floor(Math.random()*2) + 1;
-	var newEle = ((this.moves[index] + dir + 1)%3) - 1;
-	this.moves[index] = newEle;
+	// console.log(chance);
+	while(Math.random() < chance){
+		// console.log('mutate')
+		var index = Math.floor(this.moves.length*Math.random());
+		// console.log(index)
+		var dir = Math.floor(Math.random()*2) + 1;
+		var newEle = ((this.moves[index] + dir + 1)%3) - 1;
+		this.moves[index] = newEle;
+	}
 	
 }
